@@ -84,7 +84,7 @@ def extra() :
 @app.post("/start-clean")
 def startClean() :
     print("Starting....")
-    #vac.start()
+    vac.start()
 
     time.sleep(1)
     queryStatus()
