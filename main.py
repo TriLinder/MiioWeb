@@ -81,7 +81,7 @@ def main() :
 
     state = status.state
 
-    if not isOnline() :
+    if not isOnline() or not status.error == "No error" :
         state = "Offline or not queried"
         buttons = []
 
@@ -102,7 +102,7 @@ def extra() :
     s = getStatus()
     carpet = getCarpetMode()
 
-    if not isOnline() :
+    if not isOnline() or not s.error == "No error" :
         return redirect("/")
 
     return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
@@ -110,7 +110,7 @@ def extra() :
 @app.get("/manual")
 def manual() :
 
-    if not isOnline() :
+    if not isOnline() or not getStatus().error == "No error" :
         return redirect("/")
 
     return render_template("manual.html")
