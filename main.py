@@ -84,6 +84,10 @@ def extra() :
 
     return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
 
+@app.get("/manual")
+def manual() :
+    return render_template("manual.html")
+
 #------------------------------------#
 
 @app.post("/start-clean")
@@ -164,5 +168,37 @@ def findRobot() :
         print(e)
 
     return redirect("/extra")
+
+#------------------------------------#
+
+@app.post("/manual-start")
+def manaulStart() :
+    vac.manual_start()
+    return "ok"
+
+@app.post("/manual-stop")
+def manaulStop() :
+    vac.manual_stop()
+    return "ok"
+
+@app.post("/move-foward")
+def moveFoward() :
+    vac.manual_control(0, .3)
+    return "ok"
+
+@app.post("/move-backwards")
+def moveBackwards() :
+    vac.manual_control(0, -0.3)
+    return "ok"
+
+@app.post("/move-left")
+def moveLeft() :
+    vac.manual_control(30, 0)
+    return "ok"
+
+@app.post("/move-right")
+def moveRight() :
+    vac.manual_control(-30, 0)
+    return "ok"
 
 app.run(host="0.0.0.0",port=5000,threaded=True)

@@ -43,4 +43,4 @@ vac = Vacuum(ip, token)
 if __name__ == "__main__" :
     while True :
         query(0)
-        time.sleep(15)
+        time.sleep(30)

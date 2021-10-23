@@ -1,21 +1,31 @@
 <html>
     <body>
-
         <noscript><h1> Javascript must be enabled for this page to work.. </h1></noscript>
-        <p class="state"><b>Status: </b> {{state}}</p>
-        <p class="battery"><b>Battery: </b> {{battery}}%</p>
-        <p class="error" style="color: red;"> {{error}} </p>
-        <p id="sendingText"></p>
-        <button {{startVisible}} class="startCleaning" onclick="post(0)">Start</button>
-        <button {{stopVisible}} class="stopCleaning" onclick="post(1)">Stop</button>
-        <button {{pauseVisible}} class="pauseCleaning" onclick="post(2)">Pause</button>
-        <button {{dockVisible}} class="returnDock" onclick="post(3)">Return to dock</button><br><br>
 
-        <a href="/extra">Extra</a>
-        
+        <h3>Use WASD to move the robot..</h3>
+        <p>Please make sure the robot is fully under control, before continuing..</p>
+        <button onclick="post(4)">Start</button> <button onclick="post(5)">Stop</button><br><br>
+        <a href="/extra">Back</a>
+
         <script>
-            var urls = ["start-clean","stop-clean","pause-clean","return-dock"]
+            var urls = ["move-foward","move-backwards","move-left","move-right","manual-start","manual-stop"]
+            document.addEventListener("keyup", function() {key()})
         
+            function key() {
+                if (event.code == "KeyW") {
+                    post(0)
+                }
+                if (event.code == "KeyS") {
+                    post(1)
+                }
+                if (event.code == "KeyA") {
+                    post(2)
+                }
+                if (event.code == "KeyD") {
+                    post(3)
+                }
+            }
+
             function post(url) {
                 console.log(urls[url]);
                 var xhr = new XMLHttpRequest();
@@ -30,9 +40,9 @@
                             alert("Request failed!")
                         }
                         console.log("Request complete!")
-                        location.reload();
                     }};
             }
         </script>
+
     </body>
 </html>
