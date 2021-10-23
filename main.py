@@ -20,6 +20,10 @@ def getConsumables() :
     s = shelve.open("status")
     return s["consumables"]
 
+def getCarpetMode() :
+    s = shelve.open("status")
+    return s["carpet"]
+
 def getButtons(state) :
     state = state.lower()
 
@@ -76,8 +80,9 @@ def main() :
 def extra() :
     c = getConsumables()
     s = getStatus()
+    carpet = getCarpetMode()
 
-    return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed)
+    return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
 
 #------------------------------------#
 
@@ -131,6 +136,32 @@ def setFanspeed() :
     
     time.sleep(1)
     queryStatus()
+
+    return redirect("/extra")
+
+@app.post("/switch-carpet")
+def switchCarpet() :
+    carpet = getCarpetMode()
+
+    try :
+        vac.set_carpet_mode(int(not carpet.enabled))
+    except Exception as e :
+        print(e)
+    
+    s = shelve.open("status")
+    try :
+        s["carpet"] = vac.carpet_mode()
+    except :
+        pass
+
+    return redirect("/extra")
+
+@app.post("/find-robot")
+def findRobot() :
+    try :
+        vac.find()
+    except Exception as e :
+        print(e)
 
     return redirect("/extra")
 

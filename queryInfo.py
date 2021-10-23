@@ -20,11 +20,17 @@ def query(failed) :
     except Exception as e :
         print(e)
         query(failed+1)
+    
+    try :
+        carpet = vac.carpet_mode()
+    except Exception as e :
+        print(e)
+        query(failed+1)
 
     print("Saving..")
     s = shelve.open("status")
     s["status"] = status
-    print(status)
+    s["carpet"] = carpet
     s["consumables"] = consumables
 
 with open("vac.txt", "r") as f :

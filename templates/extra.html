@@ -8,4 +8,15 @@
     <form action="/set-fanspeed" method="POST">
         Set fanspeed: <input type="number" name="fanspeed"> % <br> 
         <input type="submit" value="Set">
+    </form><br>
+
+<h2>Carpet mode:</h2>
+    Carpet mode is {{carpet}}
+    <form action="/switch-carpet" method="POST">
+        <input type="submit" value="Switch">
+    </form><br>
+
+<h2>Find robot:</h2>
+    <form action="/find-robot" method="POST">
+        <input type="submit" value="Find robot">
     </form>
