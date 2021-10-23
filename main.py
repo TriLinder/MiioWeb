@@ -1,27 +1,42 @@
 from flask import Flask, render_template, request, redirect
 from miio import Vacuum
-import queryInfo
 import shelve
 import time
+import sys
 
-with open("vac.txt", "r") as f :
-    data = f.read().split("/")
-    token = data[1]
-    ip = data[0]
+try :
+    with open("vac.txt", "r") as f :
+        data = f.read().split("/")
+        token = data[1]
+        ip = data[0]
+except FileNotFoundError :
+    print("Welcome to MiioWeb!")
+    print("For the app to work correctly, please make sure to run queryInfo.py alongisde this file")
+    ip = input("\nPlease enter your robot's IP Address: ").replace("/","")
+    token = input("\nPlease enter your robot's token (https://python-miio.readthedocs.io/en/latest/discovery.html): ").replace("/","")
+    
+    with open("vac.txt", "w") as f :
+        f.write("%s/%s" % (ip, token))
+    
+    print("Thank you. Please restart the application and the queryInfo.py file..")
+    input("Press [ENTER] to quit..")
+    sys.exit()
+
+s = shelve.open("status")
 
 vac = Vacuum(ip, token)
 app = Flask(__name__)
 
 def getStatus() :
-    s = shelve.open("status")
     return s["status"]
 
+def isOnline() :
+    return time.time() - s["lastCheck"] < 120
+
 def getConsumables() :
-    s = shelve.open("status")
     return s["consumables"]
 
 def getCarpetMode() :
-    s = shelve.open("status")
     return s["carpet"]
 
 def getButtons(state) :
@@ -54,9 +69,8 @@ def queryStatus() :
         print(e)
         return "failed"
     
-    s = shelve.open("status")
     s["status"] = status
-    print(status.state)
+    s["lastCheck"] = int(time.time())
 
 #------------------------------------#
 
@@ -64,6 +78,12 @@ def queryStatus() :
 def main() :
     status = getStatus()
     buttons = getButtons(status.state)
+
+    state = status.state
+
+    if not isOnline() :
+        state = "Offline or not queried"
+        buttons = []
 
     startVisible = ["hidden","visible"][int("start" in buttons)]
     stopVisible = ["hidden","visible"][int("stop" in buttons)]
@@ -74,7 +94,7 @@ def main() :
     if error == "No error" :
         error = ""
 
-    return render_template("main.html", battery=status.battery, state=status.state, error=error, startVisible=startVisible, stopVisible=stopVisible, pauseVisible=pauseVisible, dockVisible=dockVisible)
+    return render_template("main.html", battery=status.battery, state=state, error=error, startVisible=startVisible, stopVisible=stopVisible, pauseVisible=pauseVisible, dockVisible=dockVisible)
 
 @app.get("/extra")
 def extra() :
@@ -82,10 +102,17 @@ def extra() :
     s = getStatus()
     carpet = getCarpetMode()
 
+    if not isOnline() :
+        return redirect("/")
+
     return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
 
 @app.get("/manual")
 def manual() :
+
+    if not isOnline() :
+        return redirect("/")
+
     return render_template("manual.html")
 
 #------------------------------------#
@@ -152,7 +179,6 @@ def switchCarpet() :
     except Exception as e :
         print(e)
     
-    s = shelve.open("status")
     try :
         s["carpet"] = vac.carpet_mode()
     except :
