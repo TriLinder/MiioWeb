@@ -1,12 +1,15 @@
 <html>
     <body>
 
-        <p class="state">Status: {{state}}</p>
-        <p class="battery">Battery: {{battery}}%</p>
+        <p class="state"><b>Status: </b> {{state}}</p>
+        <p class="battery"><b>Battery: </b> {{battery}}%</p>
+        <p class="error" style="color: red;"> {{error}} </p>
         <button {{startVisible}} class="startCleaning" onclick="post(0)">Start</button>
-        <button {{stopVisible}} class="stopCleaning" onclick="post(1)">Stop</button> <br>
+        <button {{stopVisible}} class="stopCleaning" onclick="post(1)">Stop</button>
         <button {{pauseVisible}} class="pauseCleaning" onclick="post(2)">Pause</button>
-        <button {{dockVisible}} class="returnDock" onclick="post(3)">Return to dock</button>
+        <button {{dockVisible}} class="returnDock" onclick="post(3)">Return to dock</button><br><br>
+
+        <a href="/extra">Extra</a>
         
         <script>
             var urls = ["start-clean","stop-clean","pause-clean","return-dock"]

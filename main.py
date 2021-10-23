@@ -14,12 +14,18 @@ def getStatus() :
     s = shelve.open("status")
     return s["status"]
 
+def getConsumables() :
+    s = shelve.open("status")
+    return s["consumables"]
+
 def getButtons(state) :
     state = state.lower()
 
     if state == "charging" :
         return ["start"]
     elif state == "idle" :
+        return ["start", "dock"]
+    elif state == "charger disconnected" :
         return ["start", "dock"]
     elif state == "cleaning" :
         return ["stop", "pause", "dock"]
@@ -46,33 +52,46 @@ def main() :
     pauseVisible = ["hidden","visible"][int("pause" in buttons)]
     dockVisible = ["hidden","visible"][int("dock" in buttons)]
 
-    return render_template("main.html", battery=status.battery, state=status.state, startVisible=startVisible, stopVisible=stopVisible, pauseVisible=pauseVisible, dockVisible=dockVisible)
+    error = status.error
+    if error == "No error" :
+        error = ""
+
+    return render_template("main.html", battery=status.battery, state=status.state, error=error, startVisible=startVisible, stopVisible=stopVisible, pauseVisible=pauseVisible, dockVisible=dockVisible)
+
+@app.get("/extra")
+def extra() :
+    c = getConsumables()
+    s = getStatus()
+
+    return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed)
+
+#------------------------------------#
 
 @app.post("/start-clean")
 def startClean() :
     print("Starting....")
-    #vac.start()
+    vac.start()
 
     return "ok"
 
 @app.post("/stop-clean")
 def stopClean() :
     print("Stopping......")
-    #vac.stop()
+    vac.stop()
     
     return "ok"
 
 @app.post("/pause-clean")
 def pauseClean() :
     print("Pausing....")
-    #vac.pause()
+    vac.pause()
     
     return "ok"
 
 @app.post("/return-dock")
 def returnToDock() :
     print("Returing to dock....")
-    #vac.home()
+    vac.home()
     
     return "ok"
 

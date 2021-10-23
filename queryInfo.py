@@ -3,6 +3,29 @@ from miio import Vacuum
 import shelve
 import time
 
+def query(failed) :
+    print("Query")
+
+    if failed > 5 :
+        return "failed"
+
+    try :
+        status = vac.status()
+    except Exception as e :
+        print(e)
+        query(failed+1)
+    
+    try :
+        consumables = vac.consumable_status()
+    except Exception as e :
+        print(e)
+        query(failed+1)
+
+    print("Saving..")
+    s = shelve.open("status")
+    s["status"] = status
+    s["consumables"] = consumables
+
 with open("vac.txt", "r") as f :
     data = f.read().split("/")
     token = data[1]
@@ -10,17 +33,7 @@ with open("vac.txt", "r") as f :
 
 vac = Vacuum(ip, token)
 
-while True :
-    print("Query")
-
-    try :
-        status = vac.status()
-    except Exception as e :
-        print(e)
-        continue
-
-    print("Saving..")
-    s = shelve.open("status")
-    s["status"] = status
-    
-    time.sleep(30)
+if __name__ == "__main__" :
+    while True :
+        query(0)
+        time.sleep(15)
