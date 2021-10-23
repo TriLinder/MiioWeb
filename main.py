@@ -1,6 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from miio import Vacuum
+import queryInfo
 import shelve
+import time
 
 with open("vac.txt", "r") as f :
     data = f.read().split("/")
@@ -40,6 +42,18 @@ def getButtons(state) :
     else :
         return []
 
+def queryStatus() :
+    print("Query")
+    try :
+        status = vac.status()
+    except Exception as e :
+        print(e)
+        return "failed"
+    
+    s = shelve.open("status")
+    s["status"] = status
+    print(status.state)
+
 #------------------------------------#
 
 @app.get("/")
@@ -70,15 +84,21 @@ def extra() :
 @app.post("/start-clean")
 def startClean() :
     print("Starting....")
-    vac.start()
+    #vac.start()
+
+    time.sleep(1)
+    queryStatus()
 
     return "ok"
 
 @app.post("/stop-clean")
 def stopClean() :
-    print("Stopping......")
+    print("Stopping....")
     vac.stop()
     
+    time.sleep(1)
+    queryStatus()
+
     return "ok"
 
 @app.post("/pause-clean")
@@ -86,6 +106,9 @@ def pauseClean() :
     print("Pausing....")
     vac.pause()
     
+    time.sleep(1)
+    queryStatus()
+
     return "ok"
 
 @app.post("/return-dock")
@@ -93,6 +116,22 @@ def returnToDock() :
     print("Returing to dock....")
     vac.home()
     
+    time.sleep(1)
+    queryStatus()
+
     return "ok"
 
-app.run(host="0.0.0.0",port=5000)
+@app.post("/set-fanspeed")
+def setFanspeed() :
+    fanspeed = str(request.form["fanspeed"])
+    try :
+        vac.set_fan_speed(fanspeed)
+    except :
+        pass
+    
+    time.sleep(1)
+    queryStatus()
+
+    return redirect("/extra")
+
+app.run(host="0.0.0.0",port=5000,threaded=True)

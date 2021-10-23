@@ -15,11 +15,12 @@
             var urls = ["start-clean","stop-clean","pause-clean","return-dock"]
 
             function post(url) {
-                console.log(urls[url])
+                console.log(urls[url]);
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", urls[url], true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify({}));
+                console.log("Request complete!");
             }
         </script>
     </body>

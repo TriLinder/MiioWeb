@@ -24,6 +24,7 @@ def query(failed) :
     print("Saving..")
     s = shelve.open("status")
     s["status"] = status
+    print(status)
     s["consumables"] = consumables
 
 with open("vac.txt", "r") as f :
