@@ -13,6 +13,16 @@ def query(failed) :
     if failed > 5 :
         return "failed"
 
+    s = shelve.open("status")
+
+    if failed == 0 :
+        try :
+            if time.time() - s["lastRequest"] > 200 :
+                print("Waiting extra..")
+                time.sleep(90)
+        except KeyError :
+            print("First start?")
+
     try :
         status = vac.status()
     except Exception as e :
@@ -32,7 +42,6 @@ def query(failed) :
         return query(failed+1)
 
     print("Saving..")
-    s = shelve.open("status")
     s["status"] = status
     s["carpet"] = carpet
     s["consumables"] = consumables

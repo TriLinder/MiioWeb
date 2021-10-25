@@ -81,8 +81,11 @@ def main() :
 
     state = status.state
 
-    if not isOnline() or not status.error == "No error" :
+    if not isOnline() :
         state = "Offline or not queried"
+        buttons = []
+
+    if not status.error == "No error" :
         buttons = []
 
     startVisible = ["hidden","visible"][int("start" in buttons)]
@@ -93,6 +96,8 @@ def main() :
     error = status.error
     if error == "No error" :
         error = ""
+
+    s["lastRequest"] = int(time.time())
 
     return render_template("main.html", battery=status.battery, state=state, error=error, startVisible=startVisible, stopVisible=stopVisible, pauseVisible=pauseVisible, dockVisible=dockVisible)
 
@@ -105,6 +110,8 @@ def extra() :
     if not isOnline() or not s.error == "No error" :
         return redirect("/")
 
+    s["lastRequest"] = int(time.time())
+
     return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
 
 @app.get("/manual")
@@ -112,6 +119,8 @@ def manual() :
 
     if not isOnline() or not getStatus().error == "No error" :
         return redirect("/")
+
+    s["lastRequest"] = int(time.time())
 
     return render_template("manual.html")
 
