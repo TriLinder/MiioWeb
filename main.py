@@ -104,15 +104,15 @@ def main() :
 @app.get("/extra")
 def extra() :
     c = getConsumables()
-    s = getStatus()
+    st = getStatus()
     carpet = getCarpetMode()
 
-    if not isOnline() or not s.error == "No error" :
+    if not isOnline() or not st.error == "No error" :
         return redirect("/")
 
     s["lastRequest"] = int(time.time())
 
-    return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=s.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
+    return render_template("extra.html", filter_used=c.filter, filter_left=c.filter_left, mainb_used=c.main_brush, mainb_left=c.main_brush_left, sideb_used=c.side_brush, sideb_left=c.side_brush_left, fanspeed=st.fanspeed, carpet=["OFF","ON"][int(carpet.enabled)])
 
 @app.get("/manual")
 def manual() :
